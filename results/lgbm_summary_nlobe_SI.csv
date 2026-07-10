@@ -1,0 +1,2 @@
+model,n_train,n_test,n_features,z0_test_r2,z1_test_r2,combined_r2
+LightGBM_Nlobe_only,5814,645,2537,0.8147,0.7904,0.8020

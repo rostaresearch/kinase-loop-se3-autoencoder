@@ -1,0 +1,12 @@
+# never commit secrets / tokens / large data
+*.oncokb_token
+.oncokb_token
+*token*
+*.pt
+*.ckpt
+*.pdb
+*.dcd
+*.xtc
+*.nc
+__pycache__/
+*.pyc

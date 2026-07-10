@@ -1,0 +1,2 @@
+model,n_train,n_test,n_features,z0_test_r2,z1_test_r2,combined_r2
+LightGBM,5814,645,5685,0.8362327218055725,0.8249639868736267,0.8303462862968445
