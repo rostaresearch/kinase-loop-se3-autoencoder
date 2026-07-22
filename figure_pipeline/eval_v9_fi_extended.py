@@ -402,11 +402,24 @@ def main():
         "rf_impurity": rf_imp["z0"] + rf_imp["z1"],
     }
     # random baseline (mean over 5 random selections)
+    # NOTE: the conserved-distance features are raw Cα–Cα distances (tens of Å),
+    # so lbfgs LogisticRegression on the un-standardised matrix fails to converge
+    # in 1000 iters (esp. at large N). Standardise per fit (StandardScaler) — this
+    # both removes the ConvergenceWarning and makes each fit converge far faster.
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.pipeline import make_pipeline
+
+    def _dfg_probe():
+        return make_pipeline(
+            StandardScaler(),
+            LogisticRegression(max_iter=5000, n_jobs=-1),
+        )
+
     rng2 = np.random.default_rng(args.seed)
     for N in Ns:
         for method_name, imp in combined.items():
             top = np.argsort(-imp)[:N]
-            clf = LogisticRegression(max_iter=1000, n_jobs=-1)
+            clf = _dfg_probe()
             clf.fit(X[tr_v][:, top], dfg_labels[tr_v])
             yhat = clf.predict(X[te_v][:, top])
             bal = balanced_accuracy_score(dfg_labels[te_v], yhat)
@@ -415,7 +428,7 @@ def main():
         random_accs = []
         for _ in range(5):
             top = rng2.permutation(n_features)[:N]
-            clf = LogisticRegression(max_iter=1000, n_jobs=-1)
+            clf = _dfg_probe()
             clf.fit(X[tr_v][:, top], dfg_labels[tr_v])
             yhat = clf.predict(X[te_v][:, top])
             random_accs.append(balanced_accuracy_score(dfg_labels[te_v], yhat))
@@ -432,7 +445,7 @@ def main():
                      "random": "grey"}
     for method_name in method_colors:
         sub = cls_df[cls_df["method"] == method_name].sort_values("N")
-        ax.plot(sub["N"], sub["bal_acc"], "-o",
+        ax.plot(sub["N"], sub["bal_acc"], marker="o",
                 color=method_colors[method_name],
                 label=method_name, lw=2 if method_name != "random" else 1.5,
                 ls="-" if method_name != "random" else "--",
