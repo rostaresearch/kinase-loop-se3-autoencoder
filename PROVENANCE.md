@@ -8,7 +8,7 @@ Everything lives in one shared, self-contained folder:
 ```
 SHARE=/home/edina/kinase_v91_share        # world-readable; 5.6 GB; no other location needed
 ```
-**Verified end-to-end 2026-07-16** — a clean rerun from these files reproduces R² = 0.915.
+**Verified end-to-end 2026-07-16** — a clean rerun from these files reproduces R² = 0.915 on a single random chain-level split. See `code/grouped_cv.py` before quoting that number as generalisation: it falls to 0.859 (PDB-grouped) and 0.389 (gene-grouped).
 
 ---
 
@@ -111,8 +111,18 @@ SHARE=/home/edina/kinase_v91_share        # world-readable; 5.6 GB; no other loc
         ▼
   128 residues → C(128,2) = 8,128 candidate pairs → **7,455** pass ≥75% coverage
   6,531 chains → 0 unmapped + 8 (>50% imputed) → **6,523** used (train 5,871 / test 652)
-  ► **R² = 0.915**  (z0 0.939 · z1 0.892)
+  ► **R² = 0.915**  (z0 0.939 · z1 0.892)  ← SINGLE RANDOM CHAIN-LEVEL SPLIT
   ► lgbm_residue_importance.csv · lgbm_shap_top.csv · lgbm_summary.csv
+
+        │ ► grouped_cv.py  ★ REQUIRED before quoting any R² as generalisation
+        ▼
+  Same model, stricter validation (grouped_cv_results.csv):
+      random 5-fold ......... 0.894 ± 0.005
+      grouped by PDB entry .. 0.859 ± 0.010   (whole depositions held out)
+      grouped by gene ....... 0.389 ± 0.123   (entire kinases held out)
+  ► 0.915 is an INTERPOLATION figure. The PDB contains many near-duplicate chains of the
+    same protein and same deposition, so a random chain split is pseudoreplicated.
+    Use 0.859 for "unseen deposition" and 0.389 for "unseen kinase".
 
         │ ► eval_v9_fi_extended.py --ape-resi-floor 9999 → extended_fi_table.csv
         │ ► fi_methods_agreement.py / fi_methods_deeper.py → cross-method Spearman ρ
@@ -153,7 +163,7 @@ SHARE=/home/edina/kinase_v91_share        # world-readable; 5.6 GB; no other loc
 | candidate pairs | 8,128 | floor ≠ 9999 |
 | features | **7,455** | 2,537 ⇒ floor 624 (N-lobe only) · 5,685 ⇒ incomplete map |
 | chains used | **6,523** | check PDB coverage |
-| **Combined R²** | **0.915** | see the superseded table below |
+| **Combined R²** | **0.915** (single random split; 0.859 PDB-grouped, 0.389 gene-grouped — see `grouped_cv.py`) | see the superseded table below |
 
 ### Superseded numbers you may encounter
 | number | what it was | why not to use |

@@ -1,0 +1,5 @@
+validation_design,held_out,combined_r2,sd,folds
+single random 90/10 split,random chains,0.915,,single split
+random 5-fold CV,random chains,0.894,0.005,"0.888 0.891 0.901 0.899 0.893"
+grouped by PDB entry,whole depositions,0.859,0.010,"0.852 0.848 0.861 0.877 0.859"
+grouped by gene,entire kinases,0.389,0.123,"0.473 0.575 0.350 0.328 0.220"
