@@ -124,6 +124,35 @@ SHARE=/home/edina/kinase_v91_share        # world-readable; 5.6 GB; no other loc
     same protein and same deposition, so a random chain split is pseudoreplicated.
     Use 0.859 for "unseen deposition" and 0.389 for "unseen kinase".
 
+        │ ► nested_cv.py   (needs build_raw_matrix.py first -> X_raw.npy, 8,128 pairs w/ NaNs)
+        ▼
+  Preprocessing refit INSIDE each training fold (nested_cv_results.csv):
+    the >=75% pair-coverage filter and the imputation means are fit on training rows only,
+    on folds identical to the leaky comparator, so the delta is attributable to preprocessing.
+      random ......... 0.897 -> 0.895   (-0.001)
+      by PDB entry ... 0.857 -> 0.861   (+0.004)
+      by gene ........ 0.423 -> 0.408   (-0.015)
+  ► NEGLIGIBLE and inconsistent in sign. The reported accuracies are NOT products of
+    preprocessing leakage. (Comparator column recomputed within this paired experiment --
+    chain filter applied after splitting, not before -- so it differs slightly from the
+    table above; only the delta is interpretable.)
+
+        │ ► q6_train_dm_ae.py --seed {25,101,202,303,404}  then procrustes_seeds.py
+        │   + seed_residue_stability.py
+        ▼
+  Latent identifiability (seed_geometry.csv / seed_axes.csv / seed_*_stability.csv):
+    all 5 seeds reach val DM-MSE 0.00116-0.00124, i.e. equivalent fit.
+      configuration reproducible ....... rotation-invariant rho = 0.937
+      raw axis agreement ............... |r| 0.881 (lead) / 0.802 (second), worst 0.710 / 0.544
+      after Procrustes alignment ....... |r| 0.957 / 0.939
+      reflections needed ............... 6 of 10 model pairs  <- E(3), not SE(3)
+      rank-1 pair in ALL 5 seeds ....... 499-641 (lead) ; NONE (second)
+      residue-level agreement .......... rho 0.786 / 0.696
+      top-10 residues in ALL 5 seeds ... 499,575,633,641 (lead) ; 574,632,633 (second)
+  ► AXIS-SPECIFIC PAIR CLAIMS ARE ONLY SAFE FOR 499-641. "525-577 dominates z1" is
+    unanimous across the 4 importance METHODS within one model, but changes with every
+    reseed -- do not quote it. Use the residue-level / regional statements instead.
+
         │ ► eval_v9_fi_extended.py --ape-resi-floor 9999 → extended_fi_table.csv
         │ ► fi_methods_agreement.py / fi_methods_deeper.py → cross-method Spearman ρ
         │ ► top10_per_method.py → Table S1  (top features are CROSS-LOBE)

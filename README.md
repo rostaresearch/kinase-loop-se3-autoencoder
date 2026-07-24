@@ -31,9 +31,22 @@ trajectories), tokens, and unrelated analyses.
   **grouped by gene 0.389 ± 0.123**. The scaffold→loop relationship is real (whole depositions held
   out still gives 0.859) but a substantial component of it is **kinase-specific rather than
   transferable**. Quote the gene-grouped number for "predict a novel kinase".
-- Top predictive distances are **cross-lobe**: αC↔αF 499–641 is rank 1 for z0 under all four
-  importance methods; for z1 the top pair is the intra-N-lobe gatekeeper–preDFG 525–577, with
-  cross-lobe αEF contacts (633–702, 574–633) immediately below.
+- **Preprocessing leakage is not the problem.** Refitting the ≥75% pair-coverage filter and the
+  imputation means inside each training fold (`code/nested_cv.py`, `results/nested_cv_results.csv`)
+  changes R² by −0.001 (random), +0.004 (PDB-grouped) and −0.015 (gene-grouped) — negligible and of
+  inconsistent sign. The validation-*design* effect above is what matters.
+- **Latent axes are not identifiable across seeds** (`code/procrustes_seeds.py`,
+  `results/seed_*.csv`). Five models with equivalent reconstruction error (val DM-MSE
+  0.00116–0.00124): the raw axes correlate at only |r| 0.88 / 0.80 (worst pair 0.54), rising to
+  0.96 / 0.94 after orthogonal Procrustes alignment. **6 of 10 model pairs need a reflection** to
+  align — the expected signature of a distance-based (E(3)-invariant) representation. The
+  *configuration* is reproducible (rotation-invariant ρ = 0.937).
+- Top predictive distances are **cross-lobe**. Only two importance statements replicate across all
+  five seeds: **αC↔αF 499–641 is rank 1 for the leading coordinate** (in every seed, under every
+  method), and at residue level the top-10 core is 499/575/633/641 (leading) and **574/632/633 —
+  the αEF region** (second). *No feature is rank 1 for the second coordinate in more than one seed*,
+  so the single-model result "525–577 dominates z1" is method-unanimous but **not** seed-robust and
+  must not be quoted. Per-residue importance agrees across seeds at ρ = 0.79 / 0.70.
 - Four importance methods converge at the residue level (Spearman ρ 0.76–0.95); at the individual-pair
   level the three LightGBM-derived rankings agree (ρ 0.89–0.96) and RF impurity is the outlier (0.24–0.28).
 - 16 activation-loop mutations shift at uncorrected permutation p<0.05, of which **7 survive
